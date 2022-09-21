@@ -292,7 +292,7 @@ tar [-j|-z] [xv] [-f] [-C 目录]     <==解压缩
 | 选项                                     | 描述参考                                                     |
 | ---------------------------------------- | ------------------------------------------------------------ |
 | `- N jobname`                            | 指定作业名，默认为脚本名                                     |
-| `-l select=1:ncpus=4:host=cn1:mem=400mb` | 指定作业资源，选择cn1节点上两个块集每个块有4个cpu,分配内存400mb<br />如果不指定资源那么就没有限制。 |
+| `-l select=2:ncpus=4:host=cn1:mem=400mb` | 指定作业资源，选择cn1节点上两个块，每个块有4个逻辑cpu和400mb内存<br />如果不指定资源那么就没有限制。<br />（块是一个单元分配给作业的一组资源。一个块内的所有部分都来自相同的主机。） |
 | `-q queuname`                            | 绑定作业队列                                                 |
 | `-l walltime=01:00:00`                   | 每个作业运行使用能够使用的最大wall-clocktime                 |
 | `-o mypath/my.out`                       | 指定作业标准输出文档及路径                                   |
@@ -308,18 +308,37 @@ tar [-j|-z] [xv] [-f] [-C 目录]     <==解压缩
 | -V                                       | 导入所有环境变量                                             |
 | -p 300                                   | 设置优先级，数字表示优先级                                   |
 
-* 参数可以在`qusb` 作业时候加入
+* 参数可以在`qusb` 作业时候加入：
 
-  * 也可以在脚本中加入, 需要在参数前面加上PBS
-    
-    可以在要执行的脚本前面添加几行注释参数，标注执行设置：
-    
+    ```bash
+    qsub 参数 脚本
     ```
+
+    
+
+* 也可以在脚本中加入, 需要在参数前面加上PBS  
+    可以在要执行的脚本前面添加几行注释参数，设置资源以及输出等：
+    
+    ```bash
     #!/bin/bash                 		---> bash执行该脚本
     #PBS -o filename1.out       		--->标准输出位置
     #PBS -e filename2.err       		--->错误输出位置
     #PBS -N jobname                     ---> 作业名称
     #PBS -l select=1:ncpus=10:host=cn1  --->资源分配
+    mpiexec -n 1 ./run                  --->创建一个线程执行./run程序
+    ```
+    
+    然后用`qsub` 提交该脚本。
+    
+    **注：** 由于使用qsub提交的**工作目录是用户的home目录**：`~`,  所以如果脚本当中涉及到用相对路径表示的下级目录以及用相对路径表示的下级目录，需要在上面的shell脚本中通过**cd**命令切换到**你所期望的工作目录**。否则会出现找不到文件情况。
+    
+    ```shell
+    #!/bin/bash                 		---> bash执行该脚本
+    #PBS -o filename1.out       		--->标准输出位置
+    #PBS -e filename2.err       		--->错误输出位置
+    #PBS -N jobname                     ---> 作业名称
+    #PBS -l select=1:ncpus=10:host=cn1  --->资源分配
+    cd ~/your_working_directory
     mpiexec -n 1 ./run                  --->创建一个线程执行./run程序
     ```
     
@@ -460,7 +479,23 @@ qdel <job ID>
 
   Swap是从磁盘划分出来的交换虚拟内存。
 
+# 个人页面(personalPage)
 
+* 链接个人页面
+
+​		你需要在自己用户目录下创建 `personalPage`目录然后在该目录下创建`personalPage.html`文件。
+
+​		创建好文件后，在命令行输入`ntgweb`命令，若无报错提示，`ntgweb`会将你的`personalPage`目录软链接到网页文件所在的目录。
+
+​		`personalPage.html`文件将作为你的个人页面的链接文件，你可以在personalPage文件夹下创建和完善你的个人页面。
+
+* 使用模板
+
+  你也可以直接在用户目录下输入`ntgweb -c` ，ntgweb将会在你的用户目录下自动创建和链接personalPage目录，并将模板文件复制到该目录下。通过修改模板的`personalPage.html`文件完成自己的个人页面设置。
+
+* 其他方式
+
+  你可将word或者pdf转化为html文件，并将转化后的html文件命名为`personalPage.html`并放置在通过**ntgweb链接后**的`~/personalPage/`目录下。
 
 
 
